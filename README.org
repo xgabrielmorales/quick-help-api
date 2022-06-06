@@ -1,0 +1,195 @@
+* Quick Help - API
+** Antes de Empezar
+Para garantizar el funcionamiento de este proyecto se recomienta
+utilizar Python 3.9+.
+
+Será necesario el uso de *Docker* para correr el contenedor de la base de
+datos. Sin embargo, si desea proporcionar su propia base de datos no
+olvide adicionar las credenciales de la mima en el archivo
+=quick_project/settings/local.py=.
+
+*IMPORTANTE*: Este proyecto está pensado para correr en un entorno local.
+
+** Configuración
+*** Base de datos
+Levante el contenedor de PostgreSQL utilizando el =docker-compose.yml=
+adjunto en este repositorio. Para ello utilice, en la raiz del proeycto,
+el siguiente comando:
+
+#+BEGIN_SRC
+  $ docker-compose up -d
+#+END_SRC
+
+Este comando inicalizará el contenedor y expondrá el puerto =5432= para
+que pueda ser utilizado por Django.
+*** Dependencias
+Antes de intalar las dependencias asegurate de crear un entorno virtual,
+para ello, en la raíz del proyecto ejecuta el siguiente comando:
+
+#+BEGIN_SRC
+  $ python -m venv .env
+#+END_SRC
+
+Luego asegurate de activarlo
+
+#+BEGIN_SRC
+  $ source .env/bin/activate
+#+END_SRC
+
+Apartir de ahora tu prompt tendrá adicionado =(.env)= lo que indicará que
+el entorno virtual está activado. Ahora sí, intalemos las dependencias:
+
+#+BEGIN_SRC
+  (.env) $ pip install -r requirements.txt
+#+END_SRC
+
+*** Migraciones
+Antes de arrancar el proyecto, asegurate de realizar las migraciones
+correspondientes:
+
+#+BEGIN_SRC
+  (.env) $ python manage.py makemigrations
+#+END_SRC
+
+#+BEGIN_SRC
+  (.env) $ python manage.py migrate
+#+END_SRC
+
+*** Creación del Super-Usuario
+Es recomentable crear un superusuario antes de arrancar el proyecto, ya
+que este te servirá más adelante para obtener tu token de autenticación
+para consumir el API. También, si tienes intenciones de utilizar el
+panel de administración de Django.
+
+#+BEGIN_SRC
+  (.env) $ python manage.py createsuperuser
+#+END_SRC
+*** Inicialización del Proyecto
+Una vez realizados los pasos anteriores, ya estás listo para ejecutar el
+proyecto:
+
+#+BEGIN_SRC
+  (.env) $ python manage.py runserver
+#+END_SRC
+
+Ejectuado este comando, podrás entonces consumir el API allí disponible
+utilizando la URL: =localhost:8000/=
+** API
+A continuación un overview de el API, detallando su funcionamiento
+general. Sin embargo, también puede importar a su Postman el archivo
+=quick_api_postman_collection.json= y facilitar el trabajo de consumo del
+API.
+*** Token
+**** Endpoints
+| METHOD | TOKEN REQUIRED | URL                         |
+|--------+----------------+-----------------------------|
+| GET    | FALSE          | localhost:8000/api/token/   |
+| GET    | FALSE          | localhost:8000/api/refresh/ |
+**** Obtención de Token de autenticación
+*REQUEST*:
+#+BEGIN_SRC
+  localhost:8000/api/token/
+#+END_SRC
+*BODY*:
+#+BEGIN_SRC
+  {
+    "username": "my_username",
+    "password": "my_password"
+  }
+#+END_SRC
+*RESPONSE*:
+#+BEGIN_SRC
+  {
+    "refresh": "your_iLCJhbGciOi98.acess_tlb8l90eXBlIjoicdF9pZCI6MX0.token_wBjhu3axLDoQ1o",
+    "access": "your_iOiJIUzI1NiJ9.access_2tlbliwiY2xpZW50X2lkIjoxfQ.token_EDCcIS-VzgT7DK"
+  }
+#+END_SRC
+*** Clients
+**** Endpoints
+| METHOD | TOKEN REQUIRED | PERMISSION | URL                                      |
+|--------+----------------+------------+------------------------------------------|
+| GET    | TRUE           | ANY        | localhost:8000/client                    |
+| GET    | TRUE           | ADMIN      | localhost:8000/client/<client_id>        |
+| POST   | FALSE          | ANY        | localhost:8000/client/create/            |
+| PUT    | TRUE           | ANY        | localhost:8000/client/update/<client_id> |
+| DELETE | TRUE           | ANY        | localhost:8000/client/delete/<client_id> |
+**** Ejemplos
+***** POST: Crear un Cliente
+*REQUEST*:
+#+BEGIN_SRC
+  localhost:8000/client/create/
+#+END_SRC
+*HEADER*:
+#+BEGIN_SRC
+  Autorization: Bearer your_iOiJIUzI1NiJ9.access_2tlbliwiY2xpZW50X2lkIjoxfQ.token_EDCcIS-VzgT7DK
+#+END_SRC
+*BODY*:
+#+BEGIN_SRC js
+  {
+    "first_name": "Carolina",
+    "last_name": "Montoya",
+    "document": "123456",
+    "username": "caro-montoya",
+    "email": "carolina@mail.com",
+    "password": "caro-password"
+  }
+#+END_SRC
+*** Products
+**** Endpoints
+| METHOD | TOKEN REQUIRED | PERMISSION | URL                                        |
+|--------+----------------+------------+--------------------------------------------|
+| GET    | FALSE          | ANY        | localhost:8000/product                     |
+| GET    | FALSE          | ANY        | localhost:8000/product/<product_id>        |
+| POST   | FALSE          | ANY        | localhost:8000/product/create/             |
+| PUT    | FALSE          | ANY        | localhost:8000/product/update/<product_id> |
+| DELETE | FALSE          | ANY        | localhost:8000/product/delete/<product_id> |
+**** Ejemplo
+***** PUT: Actualizar un Producto
+*REQUEST*:
+#+BEGIN_SRC
+  localhost:8000/product/update/4
+#+END_SRC
+*BODY*:
+#+BEGIN_SRC js
+  {
+    "name": "Quick Papas",
+    "description": "Unas papas con mayonesa Quick"
+  }
+#+END_SRC
+*** Bills
+**** Endpoints
+| METHOD | TOKEN REQUIRED | PERMISSION | URL                                     |
+|--------+----------------+------------+-----------------------------------------|
+| GET    | FALSE          | ANY        | localhost:8000/bill                     |
+| GET    | FALSE          | ANY        | localhost:8000/bill/<product_id>        |
+| POST   | FALSE          | ANY        | localhost:8000/bill/create/             |
+| PUT    | FALSE          | ANY        | localhost:8000/bill/update/<bill_id>    |
+| DELETE | FALSE          | ANY        | localhost:8000/bill/delete/<product_id> |
+**** Ejemplos
+***** POST - Crear una Factura
+*REQUEST*:
+#+BEGIN_SRC
+  localhost:8000/bill/create/
+#+END_SRC
+*BODY*:
+#+BEGIN_SRC js
+{
+    "company_name": "Quick Services",
+    "nit": "2379412",
+    "code": "765643",
+    "client": 2,
+    "product": [
+      1,
+      3
+    ]
+  }
+#+END_SRC
+
+*Nota*: Ten en cuenta que para crear una factura (Bill) antes debe existir
+al menos un cliente y una factura.
+*** Importar/Exportar Clientes
+**** Endpoints
+| METHOD | TOKEN REQUIRED | PERMISSION | URL                              |
+|--------+----------------+------------+----------------------------------|
+| GET    | FALSE          | ANY        | localhost:8000/client/export/csv |
+| POST   | FALSE          | ANY        | localhost:8000/client/import/csv |
