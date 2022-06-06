@@ -161,10 +161,10 @@ API.
 | METHOD | TOKEN REQUIRED | PERMISSION | URL                                     |
 |--------+----------------+------------+-----------------------------------------|
 | GET    | FALSE          | ANY        | localhost:8000/bill                     |
-| GET    | FALSE          | ANY        | localhost:8000/bill/<product_id>        |
+| GET    | FALSE          | ANY        | localhost:8000/bill/<bill_id>    |
 | POST   | FALSE          | ANY        | localhost:8000/bill/create/             |
 | PUT    | FALSE          | ANY        | localhost:8000/bill/update/<bill_id>    |
-| DELETE | FALSE          | ANY        | localhost:8000/bill/delete/<product_id> |
+| DELETE | FALSE          | ANY        | localhost:8000/bill/delete/<bill_id> |
 **** Ejemplos
 ***** POST - Crear una Factura
 *REQUEST*:
