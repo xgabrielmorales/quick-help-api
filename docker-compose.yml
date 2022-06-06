@@ -1,0 +1,12 @@
+services:
+  postgres_db:
+    image: postgres:13.6
+    container_name: postgres_db_container
+    volumes:
+      - "./postgres_db_vol:/var/lib/postgresql/data"
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: "quick-database"
+      POSTGRES_USER: "quick-user"
+      POSTGRES_PASSWORD: "quick-user-password"
